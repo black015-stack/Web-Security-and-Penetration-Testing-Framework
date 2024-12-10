@@ -1,0 +1,142 @@
+Step 1: Install Python and Necessary Packages
+
+    Update Your Kali Linux: Before starting, it’s always a good idea to update your Kali Linux system to make sure everything is up-to-date. Open a terminal and run:
+
+sudo apt update && sudo apt upgrade -y
+
+Install Python 3 and pip: Kali Linux comes with Python pre-installed, but it's essential to ensure you have the latest version and the necessary tools. Install Python 3 and pip (Python package manager) using:
+
+sudo apt install python3 python3-pip -y
+
+Verify Python Installation: Check that Python 3 is correctly installed:
+
+python3 --version
+
+Install Required Python Libraries: The next step is to install the libraries your code needs. These might include Flask, Flask-Limiter, cryptography, pyotp, and more.
+
+If you have a requirements.txt file for your project, you can use the following command to install all dependencies:
+
+pip3 install -r requirements.txt
+
+If you don’t have a requirements.txt file, you can install the necessary libraries manually:
+
+pip3 install flask flask-limiter apscheduler pyotp cryptography aiohttp numpy scikit-learn redis
+
+Install Redis (Optional): If your project uses Flask-Limiter with Redis as the backend for rate limiting, you will need to install Redis. Run the following to install Redis:
+
+sudo apt install redis-server -y
+
+After installation, start the Redis service:
+
+    sudo systemctl start redis-server
+    sudo systemctl enable redis-server
+
+Step 2: Set Up Your Project
+
+    Clone Your Project Repository (Optional): If your project is hosted on GitHub or another repository, clone it to your local machine:
+
+git clone <your-repository-url>
+cd <your-project-folder>
+
+Alternatively, if you have the project files locally, just navigate to the directory where your project is located:
+
+cd /path/to/your/project
+
+Set Up a Virtual Environment (Recommended for Isolation): It’s always a good practice to use a virtual environment for Python projects to avoid version conflicts between different packages. To create and activate a virtual environment, run:
+
+python3 -m venv venv
+source venv/bin/activate
+
+When activated, your terminal prompt should show the (venv) prefix, indicating that you're in the virtual environment.
+
+Install Dependencies in the Virtual Environment: If you're using a virtual environment, install the required libraries:
+
+    pip install -r requirements.txt
+
+Step 3: Run the Application
+
+    Run Your Flask Application: After setting up the project, you can now run your Flask application.
+
+    Make sure you have a file like app.py or whatever your main application script is named. Run your application with:
+
+python3 app.py
+
+Access Your Application: By default, Flask runs the app locally on port 5000. You can open a browser and visit http://127.0.0.1:5000 to access your app.
+
+Alternatively, you can use curl from the terminal to test the endpoints:
+
+    curl http://127.0.0.1:5000
+
+Step 4: (Optional) Run in Production Mode (Using Gunicorn)
+
+For a production environment, you should use a more robust web server like Gunicorn to run the Flask application.
+
+    Install Gunicorn: Install Gunicorn using pip:
+
+pip install gunicorn
+
+Run the Flask Application with Gunicorn: Now, instead of running python3 app.py, run the following command to start the Flask app with 4 worker processes for better performance:
+
+    gunicorn -w 4 app:app
+
+    Access the Application: Just like with the Flask default server, you can access the app via http://127.0.0.1:5000.
+
+Step 5: (Optional) Set Up Docker
+
+If you want to containerize your application using Docker, follow these steps:
+
+    Create a Dockerfile: In the root of your project, create a file called Dockerfile with the following content:
+
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY . /app
+
+RUN pip install -r requirements.txt
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+
+Build Your Docker Image: After creating the Dockerfile, build the Docker image:
+
+docker build -t secure-scan .
+
+Run the Docker Container: Once the Docker image is built, you can run the container:
+
+    docker run -p 5000:5000 secure-scan
+
+    Your app will now be running in a Docker container and accessible at http://127.0.0.1:5000.
+
+Step 6: Testing and Debugging
+
+    Test Your API: Use Postman or curl to send requests to your Flask endpoints:
+
+curl -X POST http://127.0.0.1:5000/scan -H "Content-Type: application/json" -d '{"url": "http://example.com"}'
+
+Debugging: You can use Python’s built-in logging module to track and debug your application. Log critical data to identify issues during runtime. If you want to step through your code, you can use the Python Debugger (pdb):
+
+    import pdb; pdb.set_trace()
+
+Step 7: Setting Up Regular Tasks (Optional)
+
+If your app involves regularly scheduled tasks (like updating the scanner every day), use APScheduler or Celery to schedule these tasks.
+
+    For APScheduler: In your code, add a function that runs the task (e.g., update_scanner), and schedule it using the APScheduler library:
+
+    from apscheduler.schedulers.background import BackgroundScheduler
+
+    def update_scanner():
+        print("Updating the scanner...")
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(update_scanner, 'interval', hours=24)
+    scheduler.start()
+
+    Run the Scheduler: The scheduler will now automatically run at intervals in the background.
+
+Troubleshooting
+
+    If you encounter issues with Flask-Limiter or any other package, make sure that all dependencies are correctly installed.
+    Ensure Redis is running if you're using it with Flask-Limiter for rate limiting.
+    If you see errors related to permissions, check that the directories and files your app is trying to access have the correct permissions.
